@@ -10,34 +10,96 @@
  * Fonction generique de création de fenetre et menu
  *
  * @date   revision   marc laville  03/02/2015 Gestion de la fenêtre active grace au bouton radio avant le titre de la fenêtre
+ * @date   revision   marc laville  04/02/2015 Gestion de la fenetre principale ; ajout du contenaire
+ * @date   revision   marc laville  08/02/2015 : menuFactory
  *
  * A faire : case de miniaturisation, plein ecran
  * 
  */
 var winManager = (function (document) {
-	var listWindows = {},
-		addWindow = function( win, nomApp ) {
+	var contenaire = document.getElementById("workSpace") || document.body,
+//		listWindows = {},
+		/**
+		 * Réponse à un click sur une fenêtre
+		 * On passe le form contenant la fenêtre (this) au premier plan
+		 * this : le form
+		 * e.target : le input radio contenu dans la fenêtre
+		 * e.target.parentNode.parentNode : la fenêtre (div .fenetre)
+		 */
+		changeKeyWindows = function(e, formThis) {
+			var forms = formThis.parentNode.querySelectorAll('form'),
+				lastForm = forms[forms.length - 1],
+				inputRd = e.target,
+				win = formThis.removeChild(e.target.parentNode.parentNode);
+			
+//			if(lastForm !== formThis && lastForm.lastChild != undefined) {
+			if( lastForm !== formThis ) {
+				if( lastForm.lastChild != undefined ) {
+					lastForm.lastChild.firstChild.firstChild.checked = false;
+				}
+				formThis.parentNode.appendChild( formThis.parentNode.removeChild(formThis) );
+			}
+			
+			return formThis.appendChild(win);
+		},
+		clickWindow = function(e) {
+			var rd = e.target;
+			
+			return ( rd.classList.contains('rdFenetre') ) ? changeKeyWindows( e, this ) : null;
+		},
+		addListWindows = function( nomApp ) {
+			var formRd = contenaire.appendChild( document.createElement("form") );
+			
+			formRd.setAttribute( 'name', nomApp );
+			formRd.addEventListener( "change", clickWindow );
+			
+			return formRd;
+		},
+		removeListWindows = function(nomApp) {
+			var formApp = document.forms[nomApp];
+			
+			return ( formApp != undefined ) ? null : formApp.parentNode.removeChild(formApp)
+		},
+		quitApp = function( nomApp ) {
+			var formApp = document.forms[nomApp];
+			if( formApp != undefined ){
+				formApp.parentNode.removeChild(formApp);
+			}
+		},
+		/**
+		 * Ajout d'une fenêtre
+		 * win : div.fenetre
+		 * nomApp : string le nom du formulaire associé
+		 */
+		addWindow = function( wn, win, nomApp ) {
 			nomApp = nomApp || "_";
 			
-			if( listWindows[nomApp] == undefined ){
-				listWindows[nomApp] = [];
+			if( document.forms[nomApp] == undefined ){
+				wn.addListWindows( nomApp );
 			}
-			return listWindows[nomApp].push(win);
+			
+			return document.forms[nomApp].appendChild(win);
 		},
-		listDomFenetres = function ( nomApp ) {
-			return listWindows[nomApp];
+		frontWindow = function ( nomApp ) {
+			var formApp = document.forms[nomApp];
+			
+			return (formApp != null) ? formApp.querySelector('.fenetre:last-of-type') : null;
 		},
-		createDomFenetre = function ( unTitre, unContenu, param, nomAppli, keepContentOnClose ) {
+		/**
+		 * Création d'une fenêtre
+		 * Construction de tous les élèments du dom constituant la fenetre
+		 */
+		createDomFenetre = function ( unTitre, unContenu, nomAppli, param, keepContentOnClose ) {
 			var divFenetre = document.createElement("div"),
-				inputRd = divFenetre.appendChild( document.createElement("input") ),
-				divTitre = divFenetre.appendChild( document.createElement("div") ),
+				labelRd = divFenetre.appendChild( document.createElement("label") )
+				inputRd = labelRd.appendChild( document.createElement("input") ),
+				divTitre = labelRd.appendChild( document.createElement("div") ),
 				divClose = document.createElement("div"),
 	//			divClose = document.createElement("button"),
-				divContent = divFenetre.appendChild( document.createElement("div") );
+				divContent = labelRd.appendChild( document.createElement("div") );
 
 			inputRd.setAttribute( 'type', 'radio' );
 			inputRd.setAttribute( 'name', nomAppli || '_' );
-			inputRd.checked = true;
 			
 			if( param != undefined ) {
 				divFenetre.style.left = param.x;
@@ -49,14 +111,15 @@ var winManager = (function (document) {
 			divTitre.className = "titreFenetre";
 			divClose.className = "closeFenetre";
 			divContent.className = "contenuFenetre";
+			inputRd.className = "rdFenetre";
 			
 			divClose.textContent = "X";
 			divClose.addEventListener("click", function() {
 			
 					if( (keepContentOnClose || false) == true ) {
-					} else {
 						unContenu.style.display = 'none';
 						divFenetre.parentNode.appendChild(unContenu);
+					} else {
 					}
 					return divFenetre.parentNode.removeChild(divFenetre);
 					
@@ -71,22 +134,20 @@ var winManager = (function (document) {
 			
 			$(divFenetre).draggable({ handle: '.titreFenetre' });
 			divFenetre.style.position = 'fixed';
-			divFenetre.addEventListener("click", function(e) {
-					rd = this.firstChild;
-					
-					rd.checked = true;
-				}, false
-			);
 			
-			addWindow(divFenetre);
-
+			addWindow( this, divFenetre, nomAppli);
+			inputRd.dispatchEvent( new MouseEvent( "click", { bubbles: true, cancelable: true, view: window } ) );
+			
 			return divFenetre;
 		}
-	
 
   return {
 	domFenetre : createDomFenetre,
-	listeFenetres : listDomFenetres
+	// listeFenetres : listDomFenetres,
+	addListWindows : addListWindows,
+	removeListWindows : removeListWindows,
+	quitApp:quitApp,
+	frontWindow : frontWindow
   };
 }(window.document));
 
@@ -132,3 +193,48 @@ function domFenetrePdf(chainePDF, unTitre) {
 	
 	return winManager.domFenetre( 'Récapitulatif Mensuel d\'Activité', objPdf, pos, true );
 }
+
+var menuFactory = (function (document) {
+	var	domMenu = function(unTitre) {
+			var menu = document.createElement("nav");
+
+			menu.appendChild( document.createElement("h4") )
+				.textContent = unTitre;
+			menu.appendChild( document.createElement("ul") )
+			$(menu).draggable({ handle: 'h4' });
+
+			return menu;
+		},
+		domItemMenu = function(unTitre, nomMenu, action) {
+			var label = document.createElement("label"),
+				input = label.appendChild(document.createElement("input"));
+				span = label.appendChild(document.createElement("span"));
+			
+			input.setAttribute( 'type', 'radio' );
+			input.setAttribute( 'name', 'menu_' + nomMenu );
+			
+			span.textContent = unTitre;
+			
+			if( action !== undefined ) {
+				input.addEventListener('change', action);
+			}
+			return label;
+		},
+		addItem = function(unMenu, unItem) {
+			return unMenu.querySelector('ul').appendChild(document.createElement("li")).
+				appendChild(unItem);
+		},
+		addSubMenu = function(unMenu, unItem) {
+			unItem.className = 'sous-menu';
+			
+			return unItem.appendChild(unMenu);
+		}
+		
+  return {
+	domMenu : domMenu,
+	domItemMenu : domItemMenu,
+	addItem : addItem,
+	addSubMenu : addSubMenu
+  };
+}(window.document));
+
