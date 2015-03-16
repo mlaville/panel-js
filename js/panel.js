@@ -14,6 +14,7 @@
  * @date   revision   marc laville  08/02/2015 : menuFactory
  * @date   revision   marc laville  27/02/2015 : btnClose remplace divClose
  * @date   revision   marc laville  01/03/2015 : revise le mécanisme de mise au premier plan
+ * @date   revision   marc laville  16/03/2015 : nettoyage du code
  *
  * A faire : case de miniaturisation, plein ecran
  * 
@@ -140,7 +141,6 @@ var winManager = (function (document) {
 
   return {
 	domFenetre : createDomFenetre,
-	// listeFenetres : listDomFenetres,
 	addListWindows : addListWindows,
 	quitApp:quitApp,
 	frontWindow : frontWindow
@@ -160,7 +160,6 @@ function domItemMenu(unTitre, nomMenu, action) {
 	label.appendChild( document.createTextNode(unTitre) );
 	
 	if( action !== undefined ) {
-//		item.addEventListener('click', action);
 		input.addEventListener('change', action);
 	}
 
@@ -187,7 +186,7 @@ function domFenetrePdf(chainePDF, unTitre) {
 	objPdf.setAttribute('height', '100%');
 	objPdf.setAttribute('data', chainePDF);
 	
-	return winManager.domFenetre( 'Récapitulatif Mensuel d\'Activité', objPdf, pos, true );
+	return winManager.domFenetre( 'Récapitulatif Mensuel d\'Activité', objPdf, null, pos, true );
 }
 
 var menuFactory = (function (document) {
@@ -208,7 +207,6 @@ var menuFactory = (function (document) {
 			
 			input.setAttribute( 'type', 'radio' );
 			input.setAttribute( 'name', 'menu_' + nomMenu );
-//			input.setAttribute( 'id', nomMenu + '-' + unTitre );
 			
 			span.textContent = unTitre;
 			
