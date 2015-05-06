@@ -32,7 +32,7 @@ window.addEventListener( 'load', function(event) {
 		var div = document.createElement("div");
 		
 		div.textContent = 'Salut 1';
-		winManager.domFenetre('app-01', div, 'app-01');
+		return winManager.createDomPanel({ title: 'app-01', appName: 'app-01', item: div});
 	});
 	document.getElementById('btnWin2').addEventListener( 'click', function(event) {
 		var div = document.createElement("div");
