@@ -7,7 +7,8 @@
  * @version    0.10
  * @revision   $0$
  *
- * @date revision   16/03/2015 rÃªgle nav -> section nav
+ * @date   revision   marc laville  18/06/2015 affect le z-index 10 pour les fenêtre
+ * @date   revision   marc laville  style du bouton close -> dirty
  *
  * regles de style des fenetre et menu
  *
@@ -15,6 +16,7 @@
  * 
  */
 .fenetre {
+	font-family: tahoma,arial,helvetica,lucida sans,sans-serif;
 	border-style: solid;
 	border-width: 1px;
 	overflow: hidden;
@@ -23,7 +25,7 @@
 	height: 320px;
 	position: absolute;
 	resize:both;
-	font-family: tahoma,arial,helvetica,lucida sans,sans-serif;
+	z-index:10;
 }
 .fenetre input[type=radio] {
 	float:left;
@@ -43,7 +45,13 @@
 	-webkit-user-select: none;
 	user-select: none;
   }
+/*
+.fenetre .titreFenetre:first-child,
+.fenetre input[type=radio]:checked+.titreFenetre{
+	background-color: black;
+}
 
+*/
 section:last-child .fenetre input[type=radio]:checked+.titreFenetre {
 	background-color: black;
 }
@@ -66,32 +74,32 @@ button.close {
 button.close::before {
   content:'\2715';
   display: block;
-  position: absolute;
   font-size: 1.4em;
-  left: -.1em;
-  top: -.05em;
+  left: -0.1em;
+  position: absolute;
+  top: 0;
 }
-button.close:active::before {
-  left: 0;
-  top: .05em;
-}
-
-
 button:active {
   border: 2px inset #666666;
-  left: .1em;
-  top: .1em;
+  left: .2em;
+  top: .2em;
 }
 
-button.dirty:after {
-  content:'\25CF';
-  color: #a9a9a9;
-  position:absolute;
-  top:.0em;
-  left:.0em;
-  font-size:1.4em;
- }
- 
+.titreFenetre input[type=checkbox]:checked+button.close:after {
+    content:'\25CF';
+    color: #a9a9a9;
+    position:absolute;
+    top:-.05em;
+    left:-.05em;
+    font-size:1.6em;
+}
+
+.titreFenetre input[type=checkbox] {
+    float:left;
+    width:1px;
+    visibility:hidden;
+}
+
 .basFenetre {
   border: 1px groove #999999;
   bottom: 1px;
@@ -101,14 +109,15 @@ button.dirty:after {
 }
 .contenuFenetre {
   border-bottom: 2px groove silver;
-	padding: 1px;
-	position: absolute;
-	top: 22px;
-	left: 0px;
-	bottom: 8px;
-	right: 0px;
-	overflow:hidden;
+  padding: 6px;
+  position: absolute;
+  top: 22px;
+  right: 0;
+  bottom: 8px;
+  left: 0;
+  overflow: hidden;
 }
+
 .topAppli {
   padding-left: 4px;
   color: #666666;
@@ -117,8 +126,8 @@ button.dirty:after {
   display: none;
 }
 .corpsAppli {
-	font-family: Arial,Helvetica,sans-serif;
-	background-color: white;
+  font-family: Arial,Helvetica,sans-serif;
+  background-color: white;
 	position: absolute;
 	top: 16px;
 	left: 0px;
@@ -126,8 +135,34 @@ button.dirty:after {
 	right: 0px;
 }
 
+label.sous-menu {
+	background-image: url(./images/puceRep.png);
+	background-position: right center;
+	background-repeat: no-repeat;
+}
+
+input[type="radio"]:checked + label.sous-menu {
+	background-image: url(./images/puceRepSelect.png);
+}
+
+input[type="radio"] + label {
+	background-color: transparent;
+}
+input[type="radio"]:checked + label {
+	background-color: white;
+}
+
+input[type="radio"] ~ menu {
+  margin-left: 64px;
+  display: none;
+}
+input[type="radio"]:checked ~ menu {
+  display: inline;
+}
+
+
 /***/
-section nav {
+nav {
   background-color: black;
   color: white;
   font-family: Arial,Helvetica,sans-serif;
@@ -137,14 +172,14 @@ section nav {
   width: 120px;
 }
 
-section nav div {
+nav div {
   border-style: outset;
   border-width: 2px;
   cursor: move;
   font-size: 13px;
   margin: 0;
 }
-section nav h4 {
+nav h4 {
 	font-weight: bold;
 	border-style: outset;
 	border-width: 2px;
@@ -153,22 +188,22 @@ section nav h4 {
 	padding: 0 0 0 4px;
 	margin: 0;
 }
-section nav ul {
+nav ul {
     list-style-type: none;
 	padding:0;
 	margin:0;
 }
-section nav li {
-	border: 2px outset silver;
-	color: black;
-	font-size: 12px;
-	cursor: pointer;
-	padding-right: 12px;
+nav li {
+  border: 2px outset silver;
+  color: black;
+  font-size: 12px;
+  cursor: pointer;
+  padding-right: 12px;
 }
 nav li:hover {
 	border: 2px inset silver;
 }
-section nav li label {
+nav li label {
   background-color: white;
   white-space: nowrap;
   display:block;
@@ -176,7 +211,7 @@ section nav li label {
   margin-right: 4px;
 }
 
-section nav li label span {
+nav li label span {
   background-color: silver;
   padding-left: 4px;
   padding-right: 8px;
@@ -192,19 +227,16 @@ label.sous-menu>span {
 nav input[type="radio"] {
 	display: none;
 }
-/* mÃ©canique de selection des item */
-section nav li label input ~ nav {
+/* mécanique de selection des item */
+nav li label input ~ nav {
   display: none;
   margin-left: 116px;
   margin-top: -20px;
 }
-section nav input:checked ~ nav {
+nav input:checked ~ nav {
 	display: block;
 }
-section nav input ~ span {
-transition:background-color 2s;
-}
-section nav input:checked ~ span {
+nav input:checked ~ span {
   background-color: white;
 }
 
@@ -217,4 +249,13 @@ section nav  {
 section:last-of-type>nav  {
   display: block;
 }
+.contenuFenetre textarea {
+  height: 100%;
+  width: 100%;
+  resize: none;
+  margin: -2px;
+}
 
+#workSpace section:lastchild .fenetre:lastchild {
+	z-index: 10;
+}

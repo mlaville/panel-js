@@ -35,10 +35,17 @@ window.addEventListener( 'load', function(event) {
 		return winManager.createDomPanel({ title: 'app-01', appName: 'app-01', item: div});
 	});
 	document.getElementById('btnWin2').addEventListener( 'click', function(event) {
-		var div = document.createElement("div");
+		var div = document.createElement("div"),
+			textarea = div.appendChild( document.createElement("textarea") ),
+			win = winManager.createDomPanel({ title: 'app-02', appName: 'app-02', item: div}),
+			dirty = function(event) {
+				var ck = win.querySelector('.titreFenetre input[type=checkbox]');
+				
+				return ck.checked = true; 
+			};
 		
-		div.textContent = 'Salut 2';
-		winManager.domFenetre('app-02', div, 'app-02');
+		textarea.addEventListener( 'change', dirty );
+		textarea.addEventListener( 'keyup', dirty );
 	});
 }, false );
 
