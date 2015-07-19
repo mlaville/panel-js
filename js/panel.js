@@ -4,7 +4,7 @@
  * @auteur     marc laville
  * @Copyleft 2013-2015
  * @date       13/12/2013
- * @version    0.2.0
+ * @version    0.3.0
  * @revision   $8$
  *
  * Fonction generique de création de fenetre et menu
@@ -16,7 +16,8 @@
  * @date   revision   marc laville  01/03/2015 : revise le mécanisme de mise au premier plan
  * @date   revision   marc laville  16/03/2015 : nettoyage du code
  * @date   revision   marc laville  19/03/2015 : nouvelle methode createDomPanel + gestion du decalage de position à la creation de la fenetre
- * @date   revision   marc laville  19/06/2015 : Modifie de bouton close quand la fenetre est modifiée
+ * @date   revision   marc laville  19/06/2015 : Modifie de bouton close quand la fenetre est éditée
+ * @date   revision   marc laville  19/07/2015 : Drag natif (sans JQuery)
  *
  * A faire : case de miniaturisation, plein ecran
  *
@@ -152,6 +153,7 @@ var winManager = (function (document) {
 					
 					return divFenetre.parentNode.removeChild(divFenetre);
 				};
+				
 			inputRd.setAttribute( 'type', 'radio' );
 			inputRd.setAttribute( 'name', nomAppli );
 			inputRd.setAttribute( 'form', nomAppli );
@@ -184,8 +186,11 @@ var winManager = (function (document) {
 				divContent.appendChild(options.item);
 			}
 			
-			$(divFenetre).draggable({ handle: '.titreFenetre' });
-			divFenetre.style.position = 'fixed';
+			pxUtil.draggable( divFenetre );
+			
+// si jQuery
+//			$(divFenetre).draggable({ handle: '.titreFenetre' });
+//			divFenetre.style.position = 'fixed';
 			
 			addWindow(divFenetre, nomAppli);
 			inputRd.dispatchEvent( new MouseEvent( "click", { bubbles: true, cancelable: true, view: window } ) );
@@ -220,7 +225,7 @@ function domItemMenu(unTitre, nomMenu, action) {
 
 	return item;
 }
-
+/*
 function domMenu(unTitre) {
 	var menu = document.createElement("menu");
 	
@@ -231,7 +236,7 @@ function domMenu(unTitre) {
 
 	return menu;
 }
-
+*/
 function domFenetrePdf(chainePDF, unTitre) {
 	var pos = { x:'5%', y:'120px', width:'880px', height: '420px' },
 		objPdf = document.createElement('object');
@@ -287,4 +292,3 @@ var menuFactory = (function (document) {
 	addSubMenu : addSubMenu
   };
 }(window.document));
-
